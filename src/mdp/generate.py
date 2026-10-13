@@ -2,7 +2,7 @@
 import random
 import argparse
 import sys
-import os
+from pathlib import Path
 import numpy as np
 
 
@@ -79,7 +79,7 @@ class MDPGenerator:
         return lines
 
     def save_to_file(self, path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w") as f:
             f.write("\n".join(self.generate()) + "\n")
 

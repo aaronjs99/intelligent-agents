@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # solver.py
 import os
-import pulp
 import numpy as np
 
 
@@ -90,6 +89,8 @@ class MDPSolver:
         return V, pi
 
     def _linear_programming(self):
+        import pulp
+
         V_vars = [pulp.LpVariable(f"V{i}") for i in range(self.num_states)]
         prob = pulp.LpProblem("MDP_LP", pulp.LpMinimize)
         prob += pulp.lpSum(V_vars)

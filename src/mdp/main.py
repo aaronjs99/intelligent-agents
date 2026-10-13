@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 # main.py
-import os
 import argparse
 import numpy as np
-import matplotlib.pyplot as plt
-import shutil
+from pathlib import Path
+import tempfile
 import time
 
-from core.solver import MDPSolver
-from core.encoder import Encoder
-from core.decoder import Decoder
-from core.utils import display_path_on_grid
+if __package__:
+    from .core.solver import MDPSolver
+    from .core.encoder import Encoder
+    from .core.decoder import Decoder
+    from .core.utils import display_path_on_grid
+else:
+    from core.solver import MDPSolver
+    from core.encoder import Encoder
+    from core.decoder import Decoder
+    from core.utils import display_path_on_grid
 
 
 class MDPPipeline:
@@ -18,18 +23,30 @@ class MDPPipeline:
     Core MDP solving pipeline that can be reused by different scripts.
     """
 
-    def __init__(self, algorithm, temp_dir="tmp", keep_tmp=False):
+    def __init__(self, algorithm, temp_dir=None, keep_tmp=False):
         self.algorithm = algorithm
-        self.temp_dir = temp_dir
+        self.temp_dir = (
+            temp_dir
+            if temp_dir is not None
+            else Path(__file__).resolve().parent / "tmp"
+        )
         self.keep_tmp = keep_tmp
 
-        # Create temp directory if it doesn't exist
-        os.makedirs(self.temp_dir, exist_ok=True)
+        self._workspace = None
 
-        # Set up file paths
-        self.mdp_path = f"{self.temp_dir}/mdp.txt"
-        self.value_path = f"{self.temp_dir}/value.txt"
-        self.policy_path = f"{self.temp_dir}/policy.txt"
+    def _create_workspace(self):
+        Path(self.temp_dir).mkdir(parents=True, exist_ok=True)
+        if self.keep_tmp:
+            work_dir = Path(tempfile.mkdtemp(prefix="mdp-", dir=self.temp_dir))
+            print(f"Keeping temporary files in: {work_dir}")
+        else:
+            self._workspace = tempfile.TemporaryDirectory(
+                prefix="mdp-", dir=self.temp_dir
+            )
+            work_dir = Path(self._workspace.name)
+        self.mdp_path = str(work_dir / "mdp.txt")
+        self.value_path = str(work_dir / "value.txt")
+        self.policy_path = str(work_dir / "policy.txt")
 
     def solve_grid(self, grid_file, visualize=True):
         """
@@ -46,42 +63,37 @@ class MDPPipeline:
                 actions: List of actions forming the path
                 time_taken: Time taken to solve
         """
+        self._create_workspace()
         start_time = time.time()
 
         try:
             # Step 1: Encode grid to MDP
-            print("📦 Encoding grid to MDP...")
+            print("Encoding grid to MDP...")
             encoder = Encoder(grid_file)
-            mdp_data = encoder.encode()
+            mdp_data = encoder.maze
             with open(self.mdp_path, "w") as f:
                 f.write(mdp_data)
 
             # Step 2: Solve MDP
-            print(f"🧠 Solving MDP using {self.algorithm.upper()}...")
+            print(f"Solving MDP using {self.algorithm.upper()}...")
             solver = MDPSolver(mdp_input_path=self.mdp_path, algorithm=self.algorithm)
             V, pi = solver.solve()
 
             # Write value and policy files
             with open(self.value_path, "w") as f:
-                out = []
-                for v in V:
-                    out.append(f"{v}")
-                f.writelines([f"{line}\n" for line in out])
+                f.writelines(f"{v}\n" for v in V)
 
             with open(self.policy_path, "w") as f:
-                out = []
-                for i, p in enumerate(pi):
-                    out.append(f"{i} {p}")
-                f.writelines([f"{line}\n" for line in out])
+                f.writelines(f"{i} {p}\n" for i, p in enumerate(pi))
 
             # Step 3: Decode policy to path
-            print("🔄 Decoding policy to path...")
+            print("Decoding policy to path...")
             decoder = Decoder(grid_file, self.value_path, self.policy_path)
             actions = decoder.decode()
 
             # Format path as a string for display
             path = " ".join(actions)
-            print("\n📍 PATH:")
+            print("\nPATH:")
             print(path)
 
             # Step 4: Visualize path on grid if requested
@@ -90,21 +102,19 @@ class MDPPipeline:
                 display_path_on_grid(grid, path)
 
             time_taken = time.time() - start_time
-            print(f"⏱️ Time taken: {time_taken:.3f} sec")
+            print(f"Time taken: {time_taken:.3f} sec")
 
             return V, pi, actions, time_taken
 
         finally:
-            # Clean up temporary files unless instructed to keep them
-            if not self.keep_tmp and os.path.exists(self.temp_dir):
-                print("Cleaning up temporary files...")
-                shutil.rmtree(self.temp_dir)
-                os.makedirs(self.temp_dir, exist_ok=True)
+            if not self.keep_tmp:
+                self.cleanup()
 
     def cleanup(self):
-        """Remove temporary directory if it exists"""
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
+        """Clean only the private temporary workspace owned by this pipeline."""
+        if self._workspace is not None:
+            self._workspace.cleanup()
+            self._workspace = None
 
 
 def main(grid_file, algorithm, keep_tmp=False):

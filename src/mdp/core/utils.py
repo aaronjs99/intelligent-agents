@@ -3,6 +3,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from .grid import DIRECTIONS
+
 
 def print_maze_with_padding(maze):
     """
@@ -32,9 +34,8 @@ def display_path_on_grid(grid, path):
     x, y = np.where(grid == 2)  # Find the start point (2)
     x, y = int(x[0]), int(y[0])
 
-    dirs = {"N": (-1, 0), "S": (1, 0), "E": (0, 1), "W": (0, -1)}
     for step in path_steps:
-        dx, dy = dirs.get(step, (0, 0))
+        dx, dy = DIRECTIONS.get(step, (0, 0))
         x += dx
         y += dy
         if grid[x][y] != 3:  # Don't overwrite goal (3)

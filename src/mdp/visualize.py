@@ -3,7 +3,12 @@
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from copy import deepcopy
+from pathlib import Path
+
+if __package__:
+    from .core.grid import DIRECTIONS
+else:
+    from core.grid import DIRECTIONS
 
 
 class MazeVisualizer:
@@ -26,17 +31,12 @@ class MazeVisualizer:
         self.grid[x][y] = 3
 
         with open(self.path_path) as f:
-            steps = deepcopy(f.readlines()[-1].split())
+            steps = f.readlines()[-1].split()
 
         for move in steps:
-            if move == "N":
-                x -= 1
-            elif move == "S":
-                x += 1
-            elif move == "E":
-                y += 1
-            elif move == "W":
-                y -= 1
+            dy, dx = DIRECTIONS.get(move, (0, 0))
+            x += dy
+            y += dx
             self.grid[x][y] = 2
 
         self.grid[x][y] = 4
@@ -58,8 +58,10 @@ class MazeVisualizer:
         plt.figure(figsize=(10, 5))
         plt.imshow(self.grid, cmap=plt.cm.CMRmap, interpolation="nearest")
         plt.xticks([]), plt.yticks([])
+        Path(self.output).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(self.output)
-        print(f"✅ Maze image saved to: {self.output}")
+        plt.close()
+        print(f"Maze image saved to: {self.output}")
 
 
 if __name__ == "__main__":
@@ -82,15 +84,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.path_file:
-        print(f"🔄 Applying path from: {args.path_file}" f" to grid: {args.grid_file}")
+        print(f"Applying path from: {args.path_file}" f" to grid: {args.grid_file}")
         if "unsolved" in args.output_file:
             output_file = args.output_file.replace("unsolved", "solved")
-            print(f"🔄 Saving solved grid to: {output_file}")
+            print(f"Saving solved grid to: {output_file}")
     else:
-        print(f"🔄 Converting solution markers in grid: {args.grid_file}")
+        print(f"Converting solution markers in grid: {args.grid_file}")
         if "solved" in args.output_file and "unsolved" not in args.output_file:
             output_file = args.output_file.replace("solved", "unsolved")
-            print(f"🔄 Saving unsolved grid to: {output_file}")
+            print(f"Saving unsolved grid to: {output_file}")
 
     visualizer = MazeVisualizer(
         grid_path=args.grid_file, path_path=args.path_file, output=args.output_file

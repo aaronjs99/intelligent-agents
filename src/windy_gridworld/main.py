@@ -3,6 +3,7 @@ import sys, math, random
 import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy as dcopy
+from pathlib import Path
 
 
 class WindyGridworld:
@@ -244,4 +245,6 @@ if __name__ == "__main__":
 
     plt.legend()
     plt.show()
-    plt.savefig("./plots/windy_gridworld/averaged_comparison.png")
+    output = Path(__file__).resolve().parents[2] / "plots" / "windy_gridworld"
+    output.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output / "averaged_comparison.png")

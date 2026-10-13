@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # decoder.py
-from core.grid import Grid
+from .grid import Grid, DIRECTIONS, build_maze, manhattan, maze_transitions, neighbors
 
 
 class Decoder:
@@ -26,61 +26,26 @@ class Decoder:
                 policy.append(int(out[i][1]))
         return value, policy
 
-    def manhattan(self, point1, point2):
-        return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
+    manhattan = staticmethod(manhattan)
 
     def build_maze(self):
-        states = []
-        start = end = None
-        for i in range(len(self.grid.grid)):
-            for j in range(len(self.grid.grid[i])):
-                if self.grid.grid[i][j] != 1:
-                    states.append((i, j))
-                if self.grid.grid[i][j] == 2:
-                    start = len(states) - 1
-                if self.grid.grid[i][j] == 3:
-                    end = len(states) - 1
-        return states, start, end
+        states, start, ends = build_maze(self.grid.grid)
+        # Preserve the decoder's historical last-goal semantics.
+        return states, start, ends[-1] if ends else None
 
     def get_maze_data(self):
-        translated = ["N", "S", "E", "W"]
-        states = self.states
-        transitions = []
-        endstate = states[self.end]
-        endReward = 1000000
-        stateReward = -1
-        invalidReward = -1000000
-
-        for i in range(len(states)):
-            state = states[i]
-            neighbors = [
-                (state[0] - 1, state[1]),
-                (state[0] + 1, state[1]),
-                (state[0], state[1] + 1),
-                (state[0], state[1] - 1),
-            ]
-            if i == self.end:
-                continue
-            for action in range(4):
-                neighbor = neighbors[action]
-                if neighbor == endstate:
-                    transitions.append((i, action, self.end, endReward, 1.0))
-                elif neighbor in states:
-                    transitions.append(
-                        (i, action, states.index(neighbor), stateReward, 1.0)
-                    )
-                else:
-                    transitions.append((i, action, i, invalidReward, 1.0))
-
-        mode = "episodic"
-        discount = 0.9
-        numStates = len(states)
-        numActions = 4
-
-        return numStates, numActions, self.start, self.end, transitions, mode, discount
+        return (
+            len(self.states),
+            4,
+            self.start,
+            self.end,
+            maze_transitions(self.states, self.end),
+            "episodic",
+            0.9,
+        )
 
     def decode(self):
-        translated = ["N", "S", "E", "W"]
+        translated = list(DIRECTIONS)
         state_num = self.start
         state = self.states[state_num]
         actions = []
@@ -92,13 +57,7 @@ class Decoder:
             action = translated[action_num]
             actions.append(action)
 
-            neighbors = [
-                (state[0] - 1, state[1]),  # N
-                (state[0] + 1, state[1]),  # S
-                (state[0], state[1] + 1),  # E
-                (state[0], state[1] - 1),  # W
-            ]
-            state = neighbors[action_num]
+            state = neighbors(state)[action_num]
             try:
                 state_num = state_to_idx[state]
             except KeyError:

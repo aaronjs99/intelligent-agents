@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>Adaptive routing · Intelligent Agents</title>
+  <style>
+    :root { color-scheme: light; --ink:#1d3835; --muted:#576b67; --line:#dce3dd; --accent:#096b59; --paper:#fcfdfb; --ground:#eff3ed; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--ground); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1160px; margin:auto; padding:36px 32px 60px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:24px; border-bottom:1px solid var(--line); }
+    .brand { font-size:13px; font-weight:750; letter-spacing:2px; }
+    .badge { display:inline-block; font-size:11px; font-weight:750; letter-spacing:1px; padding:6px 10px; background:#dae8df; color:#315f50; border-radius:5px; }
+    .eyebrow { text-transform:uppercase; font-size:12px; font-weight:750; letter-spacing:1.8px; color:var(--accent); margin:30px 0 8px; }
+    h1 { font-size:clamp(30px,5vw,48px); line-height:1.12; letter-spacing:-1.8px; margin:0 0 14px; }
+    h2 { font-size:21px; line-height:1.3; margin:0 0 8px; letter-spacing:-.4px; }
+    h3 { font-size:16px; margin:0 0 12px; }
+    p { margin:0 0 16px; }
+    .lede { max-width:760px; color:var(--muted); font-size:17px; }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:28px 0; }
+    .stat { border-top:3px solid #8ab2a0; padding:16px 18px; background:var(--paper); border-radius:3px; }
+    .stat strong { display:block; font-size:28px; letter-spacing:-.5px; font-variant-numeric:tabular-nums; }
+    .stat span { color:var(--muted); font-size:12px; }
+    section { background:var(--paper); padding:26px; border:1px solid var(--line); border-radius:8px; margin:18px 0; }
+    .section-head { display:flex; align-items:start; justify-content:space-between; gap:18px; }
+    .small { color:var(--muted); font-size:13px; }
+    .controls { display:flex; flex-wrap:wrap; gap:14px; margin:20px 0; }
+    label { display:block; color:var(--muted); font-size:12px; font-weight:650; }
+    select { display:block; margin-top:5px; min-width:180px; max-width:100%; padding:10px 34px 10px 12px; border:1px solid #9bac9f; border-radius:5px; background:white; color:var(--ink); font:inherit; font-size:14px; }
+    :focus-visible { outline:3px solid #a66c07; outline-offset:4px; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    caption { text-align:left; color:var(--muted); font-size:13px; padding-bottom:12px; }
+    th { text-align:right; padding:11px 12px; font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); border-bottom:1px solid var(--line); white-space:nowrap; }
+    td { padding:14px 12px; text-align:right; border-bottom:1px solid #edf0eb; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    th:first-child, td:first-child { text-align:left; padding-left:0; }
+    tbody th { font-size:14px; text-transform:none; letter-spacing:0; font-weight:650; color:var(--ink); }
+    .positive { color:#07604c; font-weight:650; }
+    .negative { color:#a14222; font-weight:650; }
+    .note { margin-top:16px; padding:14px 16px; color:#38584c; background:#eaf2e9; border-left:3px solid #88ac92; font-size:13px; }
+    #phase-insight { min-height:44px; }
+    .timeline { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); margin-top:20px; }
+    .phase { border-left:3px solid #7da68d; background:#f3f6f0; padding:15px 16px; min-width:0; overflow-wrap:anywhere; }
+    .phase h3 { margin-bottom:4px; }
+    .phase p { font-size:12px; margin:6px 0 0; color:var(--muted); }
+    .phase code { font:12px/1.7 ui-monospace,monospace; color:var(--ink); }
+    figure { margin:20px 0 0; }
+    figure img { display:block; width:100%; height:auto; }
+    figcaption { color:var(--muted); font-size:12px; margin-top:12px; }
+    details summary { cursor:pointer; font-weight:650; }
+    ul { padding-left:20px; }
+    li { margin:8px 0; }
+    a { color:var(--accent); text-underline-offset:3px; }
+    .downloads { display:flex; flex-wrap:wrap; gap:18px; padding-top:12px; font-size:14px; }
+    footer { color:var(--muted); font-size:12px; margin-top:26px; }
+    .table-scroll-hint { display:none; }
+    @media(max-width:700px) { main { padding:22px 16px 40px; } header { flex-wrap:wrap; } section { padding:20px 16px; } .stats { grid-template-columns:repeat(2,1fr); } .section-head { display:block; } .controls { display:block; } .controls > div { margin:10px 0; } select { width:100%; } h1 { letter-spacing:-1px; } .table-scroll-hint { display:block; } }
+    @media print { body { background:white; } main { padding:0; } .controls,.downloads { display:none; } section { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><div class="brand">IA / INTELLIGENT AGENTS</div><span class="badge">SIMULATED ROUTES</span></header>
+  <p class="eyebrow">Adaptive decision laboratory</p>
+  <h1>When the best route changes.</h1>
+  <p class="lede">Compare learning, forgetting, and uncertain advice. Inspect the whole run, then look at each phase to see where a policy helps and where it costs.</p>
+  <div class="stats" aria-label="Run configuration">
+    <div class="stat"><strong id="rounds">—</strong><span>Rounds per agent &amp; seed</span></div>
+    <div class="stat"><strong id="replications">—</strong><span>Paired seed replications</span></div>
+    <div class="stat"><strong id="routes">—</strong><span>Available routes</span></div>
+    <div class="stat"><strong id="discount">—</strong><span>Evidence retained per round</span></div>
+  </div>
+  <section aria-labelledby="results-heading">
+    <div class="section-head"><div><h2 id="results-heading">Compare decisions</h2><p class="small">Lower expected regret means choices closer to the current best route.</p></div><span class="badge">PAIRED COMPARISON</span></div>
+    <noscript><p>This report needs JavaScript for its local tables and filters. The chart below and companion summary.json remain available.</p></noscript>
+    <div class="controls">
+      <div><label for="phase-filter">Time period</label><select id="phase-filter"><option value="">All phases</option></select></div>
+      <div><label for="seed-filter">Replications</label><select id="seed-filter"><option value="">All seeds · mean ± SE</option></select></div>
+    </div>
+    <p class="small table-scroll-hint">Scroll the table horizontally to see every metric.</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Agent comparison table">
+      <table id="comparison-table"><caption id="table-caption">Loading run data…</caption><thead><tr><th scope="col">Agent</th><th scope="col">Successes</th><th scope="col">Expected regret</th><th scope="col">Optimal route</th><th scope="col">Hint weight</th><th scope="col">Regret saved vs forgetting</th></tr></thead><tbody></tbody></table>
+    </div>
+    <p class="note" id="phase-insight" role="status" aria-live="polite"></p>
+    <p class="small">Positive regret saved favors the agent; negative means more regret. Standard error (SE) comes from differences on matching seeds. A single seed has no estimated SE. Hint weight measures how much advice affected the decision, not an advisor's accuracy.</p>
+  </section>
+  <section aria-labelledby="scenario-heading"><h2 id="scenario-heading">The world these agents saw</h2><p class="small">True success rates are evaluator information. Each agent learns only the outcome of its chosen route, plus any supplied advice.</p><div class="timeline" id="timeline"></div></section>
+  <section aria-labelledby="chart-heading"><h2 id="chart-heading">Learning over time</h2><p class="small">This chart always shows all phases and the mean across all seeds.</p><figure><img src="data:image/png;base64,__COMPARISON_PNG__" alt="Two charts comparing cumulative expected regret and rolling optimal-route choice for each agent over the complete scenario."><figcaption>Shading: ±1 standard error across seed replications. Dashed vertical lines: phase changes. Optimal-route choice uses a rolling window of up to 50 rounds.</figcaption></figure></section>
+  <section aria-labelledby="limits-heading"><h2 id="limits-heading">Read the result with its limits</h2><ul id="limitations" class="small"></ul><details><summary>How to interpret these policies</summary><p class="small" style="margin-top:14px">Stationary Thompson sampling keeps all past observations. Forgetting Thompson sampling discounts them. Blind hints combine sampled estimates with unchecked advice. Checked hints attenuate the whole advice source when evidence disagrees. The advice gate is a heuristic; this comparison does not establish a new algorithm or general superiority.</p></details><div class="downloads"><a id="download-summary" href="#" download="summary.json">Download summary JSON</a><a href="decisions.csv" download>Open decision log CSV</a><a href="comparison.png" download>Open chart PNG</a></div><p class="small" style="margin-top:12px">The CSV and PNG links use the companion files in this run folder. Tables, data, and the chart are embedded in this HTML and work offline.</p></section>
+  <footer id="runtime"></footer>
+</main>
+<script id="run-data" type="application/json">__REPORT_DATA__</script>
+<script>
+  "use strict";
+  const report = JSON.parse(document.getElementById("run-data").textContent);
+  const byId = id => document.getElementById(id);
+  const number = value => Number(Number(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits:2, minimumFractionDigits:2 });
+  const percent = value => (value * 100).toFixed(1) + "%";
+  const withError = (value, error) => number(value) + (error == null ? " · SE n/a" : " ± " + number(error));
+  const names = { "stationary-ts":"Stationary TS", "forgetting-ts":"Forgetting TS", "blind-hints":"Blind hints", "checked-hints":"Checked hints" };
+  const label = name => names[name] || name;
+  function element(tag, text, className) { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; if (className) node.className = className; return node; }
+  byId("rounds").textContent = report.scenario.reduce((sum, phase) => sum + phase.rounds, 0).toLocaleString("en-US");
+  byId("replications").textContent = report.seeds.length;
+  byId("routes").textContent = report.scenario[0].probabilities.length;
+  byId("discount").textContent = percent(report.discount);
+  let start = 0;
+  report.scenario.forEach((phase, index) => {
+    const option = element("option", phase.name); option.value = String(index); byId("phase-filter").append(option);
+    const card = element("article", undefined, "phase");
+    card.append(element("h3", phase.name), element("p", "Rounds " + start + "–" + (start + phase.rounds - 1)));
+    card.append(element("p", "True success rates (route indices start at 0)"), element("code", phase.probabilities.map((p, i) => i + ": " + percent(p)).join(" · ")));
+    card.append(element("p", phase.hint ? "Advice: " + phase.hint.probabilities.map(percent).join(" / ") + " · confidence " + percent(phase.hint.confidence) : "No advice in this phase"));
+    byId("timeline").append(card); start += phase.rounds;
+  });
+  report.seeds.forEach(seed => { const option = element("option", "Seed " + seed); option.value = String(seed); byId("seed-filter").append(option); });
+  report.limitations.forEach(text => byId("limitations").append(element("li", text)));
+  byId("runtime").textContent = "Reproducible simulation · Python " + report.runtime.python + " · NumPy " + report.runtime.numpy + " · Report schema " + report.schema_version + ". No network connection required.";
+  const summaryUrl = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2) + "\n"], {type:"application/json"}));
+  byId("download-summary").href = summaryUrl;
+  addEventListener("pagehide", () => URL.revokeObjectURL(summaryUrl));
+  function update() {
+    const phase = byId("phase-filter").value === "" ? null : report.scenario[Number(byId("phase-filter").value)].name;
+    const seed = byId("seed-filter").value === "" ? null : Number(byId("seed-filter").value);
+    const tbody = byId("comparison-table").tBodies[0]; tbody.replaceChildren();
+    const title = (phase === null ? "All phases" : phase) + " · " + (seed === null ? report.seeds.length + " seed replications" : "seed " + seed);
+    byId("table-caption").textContent = title;
+    report.summary.forEach(item => {
+      const run = seed === null ? item : item.per_seed.find(run => run.seed === seed);
+      const metrics = phase === null ? run : run.phases[phase];
+      const tr = element("tr");
+      const th = element("th", label(item.agent)); th.scope = "row"; tr.append(th);
+      [number(metrics.mean_successes), withError(metrics.mean_expected_regret, metrics.regret_standard_error), percent(metrics.optimal_route_fraction), percent(metrics.mean_hint_weight)].forEach(value => tr.append(element("td", value)));
+      const comparison = report.paired_comparisons.find(pair => pair.agent === item.agent);
+      if (!comparison) tr.append(element("td", item.agent === "forgetting-ts" ? "Baseline" : "n/a"));
+      else {
+        const pair = phase === null ? comparison : comparison.phases[phase];
+        const delta = seed === null ? pair.mean_regret_reduction : pair.per_seed.find(run => run.seed === seed).regret_reduction;
+        const error = seed === null ? pair.regret_reduction_standard_error : null;
+        tr.append(element("td", withError(delta, error), delta > 0 ? "positive" : delta < 0 ? "negative" : ""));
+      }
+      tbody.append(tr);
+    });
+    const checked = report.paired_comparisons.find(pair => pair.agent === "checked-hints");
+    if (checked) {
+      const pair = phase === null ? checked : checked.phases[phase];
+      const delta = seed === null ? pair.mean_regret_reduction : pair.per_seed.find(run => run.seed === seed).regret_reduction;
+      const direction = Math.abs(delta) < 1e-9 ? "matched forgetting's expected regret" : "incurred " + number(Math.abs(delta)) + (delta > 0 ? " less" : " more") + " expected regret than forgetting";
+      byId("phase-insight").textContent = title + ": checked hints " + direction + ". Compare individual phases before drawing a conclusion from the total.";
+    } else byId("phase-insight").textContent = title + ". Paired comparisons require a forgetting baseline with matching seeds.";
+  }
+  byId("phase-filter").addEventListener("change", update);
+  byId("seed-filter").addEventListener("change", update);
+  update();
+</script>
+</body>
+</html>
